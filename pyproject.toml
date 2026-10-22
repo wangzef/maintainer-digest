@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maintainer-digest"
+version = "0.1.0"
+description = "Readable, source-linked GitHub maintenance reports, without an LLM or runtime dependencies."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "wangzef"}]
+keywords = ["github", "maintainer", "open-source", "report", "cli"]
+classifiers = ["Programming Language :: Python :: 3", "Topic :: Software Development", "Environment :: Console"]
+
+[project.scripts]
+maintainer-digest = "maintainer_digest.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/wangzef/maintainer-digest"
+Issues = "https://github.com/wangzef/maintainer-digest/issues"
+
+[tool.setuptools.packages.find]
+include = ["maintainer_digest*"]

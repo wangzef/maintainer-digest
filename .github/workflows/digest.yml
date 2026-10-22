@@ -1,0 +1,44 @@
+name: Weekly digest
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collect read-only snapshot and English report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DIGEST_REPOSITORY: ${{ github.repository }}
+        run: >-
+          python -m maintainer_digest --repo "$DIGEST_REPOSITORY"
+          --days 7 --strict --max-pages 20 --lang en
+          --save-data snapshots/weekly.json --output reports/weekly.en.md
+          --json-output reports/weekly.json
+      - name: Replay in Chinese
+        if: ${{ !cancelled() && hashFiles('snapshots/weekly.json') != '' }}
+        run: >-
+          python -m maintainer_digest --input snapshots/weekly.json
+          --lang zh --output reports/weekly.zh-CN.md
+      - name: Add English report to job summary
+        if: ${{ !cancelled() && hashFiles('reports/weekly.en.md') != '' }}
+        run: cat reports/weekly.en.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: maintainer-digest
+          path: reports/
+          if-no-files-found: warn
+          retention-days: 14
